@@ -1,5 +1,10 @@
 from rest_framework.response import Response
-from rest_framework import viewsets, mixins, status, generics
+from rest_framework import (
+    viewsets,
+    mixins,
+    status,
+    generics
+)
 
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
@@ -29,7 +34,7 @@ class GenreList(APIView):
         serializer = GenreSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class GenreDetail(APIView):
@@ -40,6 +45,13 @@ class GenreDetail(APIView):
     def get(self, request, pk):
         genre = self._get_entity(pk)
         serializer = GenreSerializer(genre)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def patch(self, request, pk):
+        genre = self._get_entity(pk)
+        serializer = GenreSerializer(genre, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, pk):
@@ -84,6 +96,9 @@ class ActorDetail(
 
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
